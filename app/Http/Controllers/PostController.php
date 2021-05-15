@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Http\Requests\PostRequest;
 use App\Post;
 
 class PostController extends Controller
@@ -14,10 +15,20 @@ class PostController extends Controller
      */
     public function index()
     {
+        $q = \Request::query();
+
+        if (isset($q['category_id']) == true) {
+            $posts = Post::latest()->where('category_id', $q['category_id'])->get();
+            $posts->load('category', 'user');
+
+            return view('posts.index', ['posts' => $posts]);
+        }
+
         $posts = Post::all();
         $posts->load('category', 'user');
 
         return view('posts.index', ['posts' => $posts]);
+
     }
 
     /**
@@ -27,7 +38,7 @@ class PostController extends Controller
      */
     public function create()
     {
-        //
+        return view('posts.create');
     }
 
     /**
@@ -36,9 +47,14 @@ class PostController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(PostRequest $request)
     {
-        //
+        $post = new Post;
+        $input = $request->only($post->getFillable());
+
+        $post = $post->create($input);
+
+        return redirect('/home');
     }
 
     /**
@@ -47,9 +63,11 @@ class PostController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(Post $post)
     {
-        //
+        $post->load('category', 'user');
+
+        return view('posts.show', ['post' => $post]);
     }
 
     /**
