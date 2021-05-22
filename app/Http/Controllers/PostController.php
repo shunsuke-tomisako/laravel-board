@@ -18,16 +18,16 @@ class PostController extends Controller
         $q = \Request::query();
 
         if (isset($q['category_id']) == true) {
-            $posts = Post::latest()->where('category_id', $q['category_id'])->get();
+            $posts = Post::latest()->where('category_id', $q['category_id'])->paginate(5);
+            $posts->load('category', 'user');
+
+            return view('posts.index', ['posts' => $posts]);
+        } else {
+            $posts = Post::latest()->paginate(5);
             $posts->load('category', 'user');
 
             return view('posts.index', ['posts' => $posts]);
         }
-
-        $posts = Post::all();
-        $posts->load('category', 'user');
-
-        return view('posts.index', ['posts' => $posts]);
 
     }
 
