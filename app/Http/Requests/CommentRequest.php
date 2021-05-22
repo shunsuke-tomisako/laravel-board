@@ -26,7 +26,8 @@ class CommentRequest extends FormRequest
         return [
             'comment' => 'required',
             'user_id' => 'required|numeric',
-            'post_id' => 'required|numeric'
+            'post_id' => 'required|numeric',
+            'image' => 'required|file|image'
         ];
     }
 }

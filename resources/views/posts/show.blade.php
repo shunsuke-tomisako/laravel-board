@@ -15,6 +15,7 @@
       <h5 class="card-title">カテゴリー:{{ $post->category->category_name }}</h5>
       <h5 class="card-title">投稿者:{{ $post->user->name }}</h5>
       <p class="card-text">{{ $post->content }}</p>
+      <img src="{{ asset('../storage/app/public/image/'.$post->image) }}">
     </div>
   </div>
 
