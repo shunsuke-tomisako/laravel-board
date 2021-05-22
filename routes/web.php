@@ -21,3 +21,4 @@ Route::get('/home', 'PostController@index')->name('posts.index');
 
 Route::resource('/posts', 'PostController', ['expect' => ['index']]);
 Route::resource('/users', 'UserController');
+Route::resource('/comments', 'CommentController')->middleware('auth');

@@ -19,4 +19,8 @@ class Post extends Model
         // ユーザーは1つのカテゴリ－に属する
         return $this->belongsTo('App\User', 'user_id');
     }
+
+    public function comments() {
+        return $this->hasMany('App\Comment', 'post_id', 'id');
+    }
 }

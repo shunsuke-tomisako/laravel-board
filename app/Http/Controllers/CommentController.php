@@ -3,10 +3,11 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Http\Requests\PostRequest;
-use App\Post;
+use App\Http\Requests\CommentRequest;
 
-class PostController extends Controller
+use App\Comment;
+
+class CommentController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -15,20 +16,7 @@ class PostController extends Controller
      */
     public function index()
     {
-        $q = \Request::query();
-
-        if (isset($q['category_id']) == true) {
-            $posts = Post::latest()->where('category_id', $q['category_id'])->get();
-            $posts->load('category', 'user');
-
-            return view('posts.index', ['posts' => $posts]);
-        }
-
-        $posts = Post::all();
-        $posts->load('category', 'user');
-
-        return view('posts.index', ['posts' => $posts]);
-
+        //
     }
 
     /**
@@ -38,7 +26,9 @@ class PostController extends Controller
      */
     public function create()
     {
-        return view('posts.create');
+        $q = \Request::query();
+        return view('comments.create', ['post_id' => $q['post_id']]);
+
     }
 
     /**
@@ -47,14 +37,14 @@ class PostController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(PostRequest $request)
+    public function store(CommentRequest $request)
     {
-        $post = new Post;
-        $input = $request->only($post->getFillable());
+        $comment = new Comment;
+        $input = $request->only($comment->getFillable());
+        $comment = $comment->create($input);
 
-        $post = $post->create($input);
+        return redirect('/posts/'.$comment->post_id);
 
-        return redirect('/home');
     }
 
     /**
@@ -63,10 +53,9 @@ class PostController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show(Post $post)
+    public function show($id)
     {
-        $post->load('category', 'user', 'comments.user');
-        return view('posts.show', ['post' => $post]);
+        //
     }
 
     /**
