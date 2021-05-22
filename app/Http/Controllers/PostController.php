@@ -18,12 +18,12 @@ class PostController extends Controller
         $q = \Request::query();
 
         if (isset($q['category_id']) == true) {
-            $posts = Post::latest()->where('category_id', $q['category_id'])->paginate(5);
+            $posts = Post::latest()->where('category_id', $q['category_id'])->paginate(3);
             $posts->load('category', 'user');
 
-            return view('posts.index', ['posts' => $posts]);
+            return view('posts.index', ['posts' => $posts, 'category_id' => $q['category_id']]);
         } else {
-            $posts = Post::latest()->paginate(5);
+            $posts = Post::latest()->paginate(3);
             $posts->load('category', 'user');
 
             return view('posts.index', ['posts' => $posts]);
@@ -101,5 +101,13 @@ class PostController extends Controller
     public function destroy($id)
     {
         //
+    }
+
+    public function search(Request $request) {
+        $posts = Post::where('title', 'like', "%{$request->search}%")->orwhere('content', 'like', "%{$request->search}%")->paginate(3);
+
+        $serach_result = $request->search. 'の検索結果'. $posts->total(). '件';
+
+        return view('posts.index', ['posts' => $posts, 'search_result' => $serach_result, 'search_query' => $request->search]);
     }
 }
