@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Http\Requests\PostRequest;
 use App\Post;
+use App\Tag;
 
 class PostController extends Controller
 {
@@ -19,12 +20,18 @@ class PostController extends Controller
 
         if (isset($q['category_id']) == true) {
             $posts = Post::latest()->where('category_id', $q['category_id'])->paginate(3);
-            $posts->load('category', 'user');
+            $posts->load('category', 'user', 'tags');
 
             return view('posts.index', ['posts' => $posts, 'category_id' => $q['category_id']]);
+
+        } if (isset($q['tag_name']) == true) {
+            $posts = Post::latest()->where('content', 'like', "%{$q['tag_name']}%")->paginate(3);
+            $posts->load('category', 'user', 'tags');
+            return view('posts.index', ['posts' => $posts, 'tag_name' => $q['tag_name']]);
+
         } else {
             $posts = Post::latest()->paginate(3);
-            $posts->load('category', 'user');
+            $posts->load('category', 'user', 'tags');
 
             return view('posts.index', ['posts' => $posts]);
         }
@@ -61,7 +68,23 @@ class PostController extends Controller
 
             $post->image = basename($filename);
 
+            // contentからtagを抽出
+            preg_match_all('/#([a-zA-Z0-9０-９ぁ-んァ-ヶー一-龠]+)/u', $request->content, $match);
+
+            $tags = [];
+            foreach ($match[1] as $tag) {
+                $found = Tag::firstOrCreate(['tag_name' => $tag]);
+                array_push($tags, $found);
+            }
+
+            $tag_ids = [];
+
+            foreach ($tags as $tag) {
+                array_push($tag_ids, $tag['id']);
+            }
+
             $post->save();
+            $post->tags()->attach($tag_ids);
         }
 
         return redirect('/home');
